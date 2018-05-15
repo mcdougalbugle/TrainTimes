@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0"<>
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <title>Train Times!</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.0.0/css/font-awesome.min.css">
+   <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+   
+   <!-- bootstrap cdn -->
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+
+<div class="titleHead"><h1><center><i class="fas fa-train"></i> Anytime is Train Time</h1><center><h3>Choo Choo. Chee Chee.</h3></center></center></div>
+
+<body>
+   <!-- Form -->
+   <div class="container">
+        <h2><i class="fas fa-calendar-alt"></i> Current Train Schedule</h2>
+        <div class="panel-interior">
+        <label class="trainDataRow">Train Name</label><label class="trainDataRow">Destination</label><label class="trainDataRow">Frequency (min)</label><label class="trainDataRow">Next Arrival</label><label class="trainDataRow">Minutes Away</label>
+        <hr>
+        <hr>
+        <div id="userInputs"></div>
+        </div>
+    </div>
+
+
+<!-- clear button ID-->
+   </div>
+   <div class="container">
+        <h2><i class="fas fa-plus"></i> Add Train</h2>
+        <div class="panel-interior">
+               <form id="nyt-query">
+           <!-- Search Term Form Input-->
+           <label for="nytQuery">Train Name</label>
+           <br>
+           <input type="text" id="trainNameInput">
+           <br>
+
+           
+           <!-- Search Start Date Form Input -->
+           <label for="nytStartDate">Destination</label>
+           <br>
+           <input type="text" id="destinationInput">
+           <br>
+
+           <!-- Search End Date Form Input -->
+           <label for="nytquery">First Train Time (HH:mm - military time)</label>
+           <br>
+           <input type="text" id="firstTrainTimeInput">
+           <br>
+
+           <label for="nytquery">Frequency (min)</label>
+           <br>
+           <input type="text" id="frequencyInput">
+           <br>
+           
+       </form>
+<!-- submit button ID-->
+       <button type="button" class="sButton" id="sbutton">
+               
+           <i class="fas fa-paper-plane"></i> Submit
+       </button>
+       <button type="button" class="cButton" id="button">
+               
+           <i class="far fa-trash-alt"></i> Clear
+       </button>
+        <div id="results"></div>
+        </div>
+   </div>
+
+
+     <!-- jQuery -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+   
+     <!-- JavaScript file -->
+     <script src="assets/javascript/app.js"></script>
+   
+
+<style>
+
+hr {
+    background-color: #ddd;
+    height: 2px;
+    border: none;
+}
+
+alternate {
+background: red;
+}
+
+.trainDataRow {
+width: 20%;
+float: left;
+}
+
+.titleHead {
+    color: white;
+    background-color: #784831;
+    height: 10%;
+    padding: 2%;
+    margin-right: 12%;
+    margin-left: 12%;
+    border-radius: 3px;
+    font-family: Edmunds;
+src: url('edmunds.ttf');
+}
+
+input {
+width: 95%;
+-moz-border-radius: 4px;
+ border-radius: 4px;
+    border:solid 1px #ddd;
+    margin-bottom:1.5%;
+    margin-top:0.4%;
+    padding: 6px 3px; line-height: 10px;
+    font-size:15px;
+}
+
+.container {
+margin-top: 4%;
+border: #447AB2 solid 2px;
+border-radius: 3px;
+margin-right: 12%;
+margin-left: 12%;
+}
+
+.panel-interior {
+padding: 1%;
+}
+
+.sButton, .cButton {
+    padding: 1%;
+    background-color: #447AB2;
+    border-radius: 2px;
+    color: white;
+    cursor: pointer;
+    border: none;
+    outline:none;
+}
+
+.sButton:hover, .cButton:hover { 
+    background-color: #5296dd;
+}
+
+
+h2 {
+background-color: #447AB2;
+color: white;
+padding: 1%;
+margin-top: -0.09%;
+border-radius: 1px;
+font-family: Edmunds;
+src: url('edmunds.ttf');
+}
+
+label {
+font-weight: bold;
+}
+
+body {
+    font-family: Copperplate;
+}
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous">
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+  <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script>
+
+    // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyACNe85ZyHTea1aXyJtqILTTLkQooWJEIE",
+    authDomain: "train-times-e86f8.firebaseapp.com",
+    databaseURL: "https://train-times-e86f8.firebaseio.com",
+    projectId: "train-times-e86f8",
+    storageBucket: "train-times-e86f8.appspot.com",
+    messagingSenderId: "223091843247"
+  };
+  firebase.initializeApp(config);
+
+  var database = firebase.database()
+
+  var trains = database.ref('/trains')
+
+  var trainNames = []
+  var destinations = []
+  var frequencies = []
+  var timeValues = []
+  var minutesAwayArray = []
+
+
+        var largestArray = Math.max(trainNames.length, destinations.length, frequences.length, timeValues.length, minutesAwayArray.length)
+
+        var i;
+        for (i = 0; i < largestArray; i++) { 
+            $("#userInputs").append("<label class='trainDataRow'>" + trainNames[i] + "</label><label class='trainDataRow'>" + destinations[i] + "</label><label class='trainDataRow'>" + frequencies[i] + "</label><label class='trainDataRow'>" + timeValues[i] + "</label><label class='trainDataRow'>" + minutesAwayArray[i] + "</label><br><hr>");
+        }
+
+    $('#sbutton').on('click', function(){
+
+        var timeAtPress = moment().format("HH:mm")
+
+        var trainName = $('#trainNameInput').val().trim();
+        var destination = $('#destinationInput').val().trim();
+        var firstTrainTime = $('#firstTrainTimeInput').val().trim();
+        var frequency = parseInt($('#frequencyInput').val().trim());
+
+
+        var time = firstTrainTime;
+
+        time = time.split(':'); // convert to array
+
+        // fetch
+        var hours = Number(time[0]);
+        var minutes = Number(time[1]);
+
+        // calculate
+        var timeValue;
+
+        if (hours > 0 && hours <= 12)
+        {
+        timeValue= "" + hours;
+        } else if (hours > 12)
+        {
+        timeValue= "" + (hours - 12);
+        }
+        else if (hours == 0)
+        {
+        timeValue= "12";
+        }
+        
+        timeValue += (minutes < 10) ? ":0" + minutes : ":" + minutes;  // get minutes
+        timeValue += (hours >= 12) ? " P.M." : " A.M.";  // get AM/PM
+
+
+        var firstTrainTimeHour = Number(firstTrainTime.split(':')[0]);
+
+        var firstTrainTimeMinute = Number(firstTrainTime.split(':')[1]);
+
+        var timeAtPressHour = Number(timeAtPress.split(':')[0]);
+
+        var timeAtPressMinute = Number(timeAtPress.split(':')[1]);
+
+        var firstTrainTimeHourToMinute = firstTrainTimeHour * 60
+
+        var timeAtPressHourToMinute = timeAtPressHour * 60
+
+        var minutesAway = (firstTrainTimeMinute + firstTrainTimeHourToMinute) - (timeAtPressMinute + timeAtPressHourToMinute)
+
+        if (minutesAway <= 0) {
+            minutesAway = "You Missed It!"
+        }
+
+        trains.push({
+            trainName: trainName,
+            destination: destination,
+            frequency: frequency,
+            timeValue: timeValue,
+            minutesAway: minutesAway
+        })
+
+        $("#userInputs").append("<label class='trainDataRow'>" + trainName + "</label><label class='trainDataRow'>" + destination + "</label><label class='trainDataRow'>" + frequency + "</label><label class='trainDataRow'>" + timeValue + "</label><label class='trainDataRow'>" + minutesAway + "</label><br><hr>");
+
+    })
+
+trains.on('child_added', function(snap) {
+    snap.forEach(function(child) {
+    trainNames.push(child.trainName.val());
+    destinationArray.push(child.destination.val());
+    frequencies.push(child.frequency.val());
+    timeValues.push(child.timeValue.val());
+    minutesAwayArray.push(child.minutesAway.val());
+});
+})
+
+</script>
+
+</body>
+</html>
